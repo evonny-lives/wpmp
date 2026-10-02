@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Abriendo WhatsApp…</title>
+<style>
+  :root { --verde:#25D366; --texto:#111; --fondo:#f5f5f5; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+         font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--fondo); color:var(--texto); padding:16px; }
+  .card { text-align:center; max-width:360px; width:100%; }
+  h1 { font-size:20px; margin:0 0 8px; }
+  p { font-size:15px; color:#555; margin:0 0 24px; }
+  .btn { display:block; background:var(--verde); color:#fff; text-decoration:none; font-weight:700;
+         font-size:18px; padding:16px; border-radius:999px; box-shadow:0 4px 14px rgba(37,211,102,.4); }
+  .alt { display:inline-block; margin-top:16px; font-size:13px; color:#777; }
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Abriendo WhatsApp…</h1>
+  <p>Si no se abre solo, toca el botón 👇</p>
+  <a id="btn" class="btn" href="#">💬 Escribir por WhatsApp</a>
+  <a id="alt" class="alt" href="#">¿No funciona? Ábrelo aquí</a>
+</div>
+
+<script>
+  // ====== EDITA SOLO ESTO ======
+  const TELEFONO = "51927218994";   // Código de país + número, sin +, sin espacios (Perú = 51)
+  const MENSAJE  = "Hola vengo de tiktok, quiero información de las máquinas.";
+  // =============================
+
+  const texto = encodeURIComponent(MENSAJE);
+  const ua = navigator.userAgent || "";
+  const esAndroid = /android/i.test(ua);
+  const esIOS = /iphone|ipad|ipod/i.test(ua);
+
+  const linkWeb    = `https://wa.me/${TELEFONO}?text=${texto}`;
+  const linkApp    = `whatsapp://send?phone=${TELEFONO}&text=${texto}`;
+  // Intent de Android: abre la app (WhatsApp o WhatsApp Business) y si no está instalada cae a wa.me
+  const linkIntent = `intent://send?phone=${TELEFONO}&text=${texto}#Intent;scheme=whatsapp;S.browser_fallback_url=${encodeURIComponent(linkWeb)};end`;
+
+  const destino = esAndroid ? linkIntent : (esIOS ? linkApp : linkWeb);
+
+  document.getElementById("btn").href = destino;
+  document.getElementById("alt").href = linkWeb;
+
+  // Intento automático de abrir la app
+  window.location.href = destino;
+</script>
+</body>
