@@ -4,50 +4,69 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Abriendo WhatsApp…</title>
+<title>Escríbenos por WhatsApp</title>
 <style>
   :root { --verde:#25D366; --texto:#111; --fondo:#f5f5f5; }
   * { box-sizing:border-box; }
   body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
          font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--fondo); color:var(--texto); padding:16px; }
-  .card { text-align:center; max-width:360px; width:100%; }
-  h1 { font-size:20px; margin:0 0 8px; }
+  .card { text-align:center; max-width:380px; width:100%; }
+  h1 { font-size:22px; margin:0 0 8px; }
   p { font-size:15px; color:#555; margin:0 0 24px; }
   .btn { display:block; background:var(--verde); color:#fff; text-decoration:none; font-weight:700;
-         font-size:18px; padding:16px; border-radius:999px; box-shadow:0 4px 14px rgba(37,211,102,.4); }
-  .alt { display:inline-block; margin-top:16px; font-size:13px; color:#777; }
+         font-size:18px; padding:16px; border-radius:999px; box-shadow:0 4px 14px rgba(37,211,102,.4); margin-bottom:14px; }
+  .btn2 { display:block; background:#fff; color:#111; text-decoration:none; font-weight:600; font-size:15px;
+          padding:14px; border-radius:999px; border:1px solid #ddd; }
+  .ayuda { display:none; margin-top:20px; font-size:13px; color:#666; line-height:1.5; background:#fff;
+           border-radius:12px; padding:12px; border:1px solid #e5e5e5; }
 </style>
 </head>
 <body>
 <div class="card">
-  <h1>Abriendo WhatsApp…</h1>
-  <p>Si no se abre solo, toca el botón 👇</p>
-  <a id="btn" class="btn" href="#">💬 Escribir por WhatsApp</a>
-  <a id="alt" class="alt" href="#">¿No funciona? Ábrelo aquí</a>
+  <h1>💬 Escríbenos por WhatsApp</h1>
+  <p>Toca el botón para hablar con nosotros sobre las máquinas</p>
+
+  <a id="btnApp" class="btn" href="#">Abrir WhatsApp</a>
+  <a id="btnSalir" class="btn2" href="#">¿No se abre? Toca aquí</a>
+
+  <div id="ayuda" class="ayuda">
+    Si sigue sin abrir: toca los <b>3 puntitos ( ··· )</b> arriba a la derecha y elige
+    <b>"Abrir en navegador"</b>. Ahí el botón verde funciona al instante.
+  </div>
 </div>
 
 <script>
-  // ====== EDITA SOLO ESTO ======
-  const TELEFONO = "51927218994";   // Código de país + número, sin +, sin espacios (Perú = 51)
+  // ====== DATOS ======
+  const TELEFONO = "51927218994";
   const MENSAJE  = "Hola vengo de tiktok, quiero información de las máquinas.";
-  // =============================
+  // ===================
 
   const texto = encodeURIComponent(MENSAJE);
   const ua = navigator.userAgent || "";
   const esAndroid = /android/i.test(ua);
   const esIOS = /iphone|ipad|ipod/i.test(ua);
 
-  const linkWeb    = `https://wa.me/${TELEFONO}?text=${texto}`;
-  const linkApp    = `whatsapp://send?phone=${TELEFONO}&text=${texto}`;
-  // Intent de Android: abre la app (WhatsApp o WhatsApp Business) y si no está instalada cae a wa.me
-  const linkIntent = `intent://send?phone=${TELEFONO}&text=${texto}#Intent;scheme=whatsapp;S.browser_fallback_url=${encodeURIComponent(linkWeb)};end`;
+  const linkWeb  = `https://wa.me/${TELEFONO}?text=${texto}`;
+  const linkApp  = `whatsapp://send?phone=${TELEFONO}&text=${texto}`;
+  const intentWA = `intent://send?phone=${TELEFONO}&text=${texto}#Intent;scheme=whatsapp;S.browser_fallback_url=${encodeURIComponent(linkWeb)};end`;
 
-  const destino = esAndroid ? linkIntent : (esIOS ? linkApp : linkWeb);
+  // Botón principal: abre la app al tocarlo (sin salto automático, que TikTok bloquea)
+  document.getElementById("btnApp").href = esAndroid ? intentWA : (esIOS ? linkApp : linkWeb);
 
-  document.getElementById("btn").href = destino;
-  document.getElementById("alt").href = linkWeb;
-
-  // Intento automático de abrir la app
-  window.location.href = destino;
+  // Botón de respaldo: saca a la persona de TikTok al navegador real,
+  // y desde ahí wa.me abre la app de WhatsApp
+  const sinProtocolo = linkWeb.replace(/^https:\/\//, "");
+  let salir = linkWeb;
+  if (esAndroid) {
+    salir = `intent://${sinProtocolo}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(linkWeb)};end`;
+  } else if (esIOS) {
+    salir = `x-safari-https://${sinProtocolo}`;
+  }
+  const btnSalir = document.getElementById("btnSalir");
+  btnSalir.href = salir;
+  btnSalir.addEventListener("click", () => {
+    setTimeout(() => { document.getElementById("ayuda").style.display = "block"; }, 1200);
+  });
 </script>
 </body>
+</html>
